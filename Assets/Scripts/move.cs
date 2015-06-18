@@ -16,15 +16,5 @@ public class move : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		Ray mouseRay = Camera.main.ScreenPointToRay (Input.mousePosition);
-		RaycastHit rayLocation = new RaycastHit ();
-		if (Input.GetMouseButtonDown(0))
-		{
-			if(Physics.Raycast(mouseRay,out rayLocation))
-			{
-				Physics.Raycast(mouseRay,out rayLocation);
-				agent.destination = rayLocation.point;
-			}
-		}	
 	}
 }

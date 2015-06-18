@@ -4,23 +4,28 @@ using System.Collections;
 public class Person : MonoBehaviour {
 	Renderer[] shoulders;
 	NavMeshAgent agent;
+	Color shoulderColor;
+	public Bucket bucket;
 	Transform thisTransform;
-	enum BuyState { FinishedTotal,FinishedItem,Buying,Start };
+	TextMesh thisText;
+	public enum BuyState { FinishedTotal, FinishedItem, Buying, Start, Waiting,WaitingFirstInLine, ExitingIntermmediate1,ExitingIntermmediate2, Exiting };
 	Vector3 currentDestination;
-	Color darkGrey = new Color(0.1f,0.1f,0.1f);
-	Color darkRed = new Color (0.8f, 0, 0);
-	BuyState buyState;
-	bool finishedCoroutineTimer=false;
+	public BuyState buyState;
 	float finishedTime;
+	int totalTimeInQueue=0;
+	//only for internal use
+	int totalTimeFirstInQ=0;
 	// Use this for initialization
 	void Awake () {
+		bucket = PersonManager.Instance().getNewBucket ();
 		agent = GetComponent<NavMeshAgent> ();
 		thisTransform = GetComponent<Transform> ();
-		Color[] colorSet = {Color.white,Color.black,darkRed,darkGrey};
+		thisTransform.SetParent (GameObject.Find ("People").transform);
 		shoulders = GetComponentsInChildren<Renderer> ();
-		Color color = colorSet [Random.Range (0, 4)];
+		shoulderColor = PersonColors.Instance().getNewColor();
+		buyState = BuyState.Start;
 		for (int i=1;i<3;i++){
-			shoulders[i].material.color = color;
+			shoulders[i].material.color = shoulderColor;
 		}
 	}
 	void Start(){
@@ -31,30 +36,86 @@ public class Person : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if (!agent.pathPending)
-		if ( Mathf.Floor(agent.remainingDistance) < 1 && buyState == BuyState.Buying) {
-			finishedTime = Time.timeSinceLevelLoad;
-			buyState = BuyState.FinishedItem;
-		}
+		if (!agent.pathPending && buyState!= BuyState.FinishedTotal)
+			if ( Mathf.Floor(agent.remainingDistance) < 1 && buyState == BuyState.Buying) {
+				finishedTime = Time.timeSinceLevelLoad;
+				buyState = BuyState.FinishedItem;
+			}
 		if (buyState == BuyState.FinishedItem) {
-			if (finishedTime + 15.0f < Time.timeSinceLevelLoad){
-				//StartCoroutine("setBiggerPriorityForSeconds");
-				currentDestination = PersonManager.Instance().getNextBuyPosition();
-				agent.SetDestination ( currentDestination);
-				buyState = BuyState.Buying;
+			if (finishedTime + PersonManager.Instance().shelfWaitingTime < Time.timeSinceLevelLoad){
+				bucket.finishItem();
+				if (bucket.isBucketFinished() == false)
+				{
+					currentDestination = PersonManager.Instance().getNextBuyPosition();
+					agent.SetDestination ( currentDestination);
+					buyState = BuyState.Buying;
+				}
+				else{
+					//Code to go and be queueded
+					buyState = BuyState.FinishedTotal;
+					agent.SetDestination(getClosestQAllocationArea());
+				}
+			}
+		}
+		//DETECT IF PERSON REACHED QUEUE SPOT
+		if (!agent.pathPending)
+		if (Mathf.Floor (agent.remainingDistance) < 1 
+			&& (buyState == BuyState.WaitingFirstInLine || buyState == BuyState.Waiting)) {
+				if (this.totalTimeInQueue == 0)
+					StartCoroutine("startCountingQWaitTime");
+		}
+		if (!agent.pathPending)
+		if (Mathf.Floor (agent.remainingDistance) < 1 && buyState == BuyState.ExitingIntermmediate1) {
+
+			agent.SetDestination(Locations.intermediateExitLocation2);
+			buyState = BuyState.ExitingIntermmediate2;
+		}
+		if (!agent.pathPending)
+		if (Mathf.Floor (agent.remainingDistance) < 1 && buyState == BuyState.ExitingIntermmediate2) {
+
+			buyState = BuyState.Exiting;
+			agent.SetDestination(Locations.exitLocation);
+		}
+
+		if (!agent.pathPending)
+		if (Mathf.Floor (agent.remainingDistance) < 1 && buyState == BuyState.Exiting) {
+			//DO some kind of statistics
+			Destroy(this.gameObject);
+		}
+
+	}
+	public Vector3 getClosestQAllocationArea(){
+		Collider qaRenderer = GameObject.FindGameObjectWithTag ("Allocation Area").GetComponent<Collider> ();
+		return qaRenderer.ClosestPointOnBounds(agent.transform.localPosition);
+	}
+	public string getPersonInfo(){
+		return "State:" + (bucket.ToString()) as string + "\n" +
+			"BucketFinished:" + (this.bucket.isBucketFinished()) as string;
+	}
+
+	void OnTriggerEnter(Collider col){
+		if (buyState == BuyState.FinishedTotal && col.transform.name == "Allocation Area") {
+			bool allocated = QManager.Instance ().allocatePersonToFittestQueue (this.GetComponent<Person> ());
+			if (!allocated) {
+				buyState = BuyState.ExitingIntermmediate1;
+				goToInterrmediateLocation();
 			}
 		}
 	}
-
-	IEnumerable setBiggerPriorityForSeconds(){
-		if (!finishedCoroutineTimer) {
-			finishedCoroutineTimer=true;
-			agent.avoidancePriority = 50;
-			yield return new WaitForSeconds (1.5f);
-		}
-		else {
-			finishedCoroutineTimer=false;
-			agent.avoidancePriority = 50;
+	void goToInterrmediateLocation(){
+		agent.SetDestination (Locations.intermediateExitLocation1);
+	}
+	IEnumerator startCountingQWaitTime(){
+		while (this.buyState == BuyState.Waiting 
+		       || this.buyState == BuyState.WaitingFirstInLine){
+					totalTimeInQueue+=1;
+					if (this.buyState == BuyState.WaitingFirstInLine)
+						totalTimeFirstInQ+=1;
+					if (this.buyState == BuyState.WaitingFirstInLine && totalTimeFirstInQ > bucket.totalWaitingTime)
+					{
+						this.buyState = BuyState.ExitingIntermmediate2;
+					}
+					yield return new WaitForSeconds(1);
 		}
 	}
 }
