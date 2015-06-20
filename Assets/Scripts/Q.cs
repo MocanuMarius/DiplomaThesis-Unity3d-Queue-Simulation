@@ -4,11 +4,13 @@ using System.Collections;
 public class Q : MonoBehaviour {
 	private Slot[] slots;
 	public int numberOfPersons=0;
+	public bool isActivated;
 	public float speedToQslot = 0.5f;
 	bool hasFirstPersonFinished;
 	int timeSoFar;
 	// Use this for initialization
 	void Awake(){
+		isActivated = true;
 		slots = new Slot[10];
 		Transform[] slotTransforms = gameObject.GetComponentsInChildren<Transform> ();
 		foreach (Transform trans in slotTransforms){
@@ -43,7 +45,7 @@ public class Q : MonoBehaviour {
 		return nrSlots;
 	}
 	public void putPersonInQ (Person person){
-		person.GetComponent<NavMeshAgent> ().avoidancePriority = 51;
+	
 		for (int i =0; i<10; i++) {
 			if (!(slots[i].isOccupied)){
 				slots[i].occupySlot(person);

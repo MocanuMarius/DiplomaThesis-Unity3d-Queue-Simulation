@@ -13,10 +13,11 @@ public class Person : MonoBehaviour {
 	public BuyState buyState;
 	float finishedTime;
 	int totalTimeInQueue=0;
-	//only for internal use
+	public bool hasAbandoned;
 	int totalTimeFirstInQ=0;
 	// Use this for initialization
 	void Awake () {
+		hasAbandoned = false;
 		bucket = PersonManager.Instance().getNewBucket ();
 		agent = GetComponent<NavMeshAgent> ();
 		thisTransform = GetComponent<Transform> ();
@@ -29,9 +30,18 @@ public class Person : MonoBehaviour {
 		}
 	}
 	void Start(){
-		currentDestination = PersonManager.Instance ().getNextBuyPosition ();
-		buyState = BuyState.Buying;
-		agent.SetDestination ( currentDestination );
+        if (QManager.Instance().isThereAnySlotsLeft() == false)
+        {
+             buyState = BuyState.ExitingIntermmediate1;
+            agent.SetDestination(Locations.intermediateExitLocation1);
+        }
+        else
+        {
+            agent.autoRepath = true;
+            currentDestination = PersonManager.Instance().getNextBuyPosition();
+            buyState = BuyState.Buying;
+            agent.SetDestination(currentDestination);
+        }
 	}
 	
 	// Update is called once per frame
@@ -80,6 +90,11 @@ public class Person : MonoBehaviour {
 		if (!agent.pathPending)
 		if (Mathf.Floor (agent.remainingDistance) < 1 && buyState == BuyState.Exiting) {
 			//DO some kind of statistics
+            if (hasAbandoned == true)
+            {
+                PersonManager.Instance().numberOfPersonsAborted++;
+            }
+            PersonManager.Instance().persons.Remove(this.gameObject);
 			Destroy(this.gameObject);
 		}
 

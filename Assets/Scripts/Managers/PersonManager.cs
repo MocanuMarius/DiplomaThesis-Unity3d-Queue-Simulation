@@ -11,20 +11,26 @@ public class PersonManager : MonoBehaviour {
 	public int minItemTime;
 	public int maxItemTime;
 	public int shelfWaitingTime;
-	public int spawnTimeConstant;
+	public static int spawnTimeInterval;
+
+    public int numberOfPersonsTotal = 0;
+    public int numberOfPersonsNotSpawned = 0;
+    public int personsInsideLimit = 280;
+    public int numberOfPersonsAborted = 0;
+
 	private static PersonManager personManager;
 	Renderer rowRenderer;
-	List<GameObject> persons = new List<GameObject>();
+	public List<GameObject> persons = new List<GameObject>();
 	GameObject[] rows;
 	Bounds rowBounds;
 	Vector3 randomizedPosition;
 	int selectedRowNumber;
 
 	void Start () {
-		StartCoroutine (InstantiateNewPerson (spawnTimeConstant));
+        spawnTimeInterval = 1;
+		StartCoroutine (InstantiateNewPerson ());
 	}
 	void Update () {
-		
 	}
 	public Vector3 getNextBuyPosition(){
 		rows = GameObject.FindGameObjectsWithTag ("rowTransforms");
@@ -41,14 +47,22 @@ public class PersonManager : MonoBehaviour {
 	public Bucket getNewBucket(){
 		return new Bucket();
 	}
-	IEnumerator InstantiateNewPerson(int timeConstant){
+	IEnumerator InstantiateNewPerson(){
 		while (true) {
-		GameObject newPerson = Instantiate (PersonPrefab,Locations.Instance ().getNewSpawnLocation(), Quaternion.identity) as GameObject;
-		GameObject currentPerson = GameObject.Find("Person(Clone)");
-		persons.Add(currentPerson);
-			currentPerson.name="Person "+(persons.Count) as string;
-		//TO BE ADDED - THE DISTRIBUTION PROBABILITIES
-		yield return new WaitForSeconds (timeConstant*1);
+            if (DistributionManager.getDistrib())
+            {
+                Debug.Log(DistributionManager.uniformChance);
+                numberOfPersonsTotal++;
+                if (persons.Count < personsInsideLimit)
+                {
+                    GameObject newPerson = Instantiate(PersonPrefab, Locations.Instance().getNewSpawnLocation(), Quaternion.identity) as GameObject;
+                    GameObject currentPerson = GameObject.Find("Person(Clone)");
+                    persons.Add(currentPerson);
+                    currentPerson.name = "Person " + (persons.Count) as string;
+                }
+                else numberOfPersonsNotSpawned++;
+            }
+		yield return new WaitForSeconds (spawnTimeInterval);
 		}
 	}
 	public static PersonManager Instance (){
