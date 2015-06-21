@@ -18,6 +18,5 @@ public class UI_ShelfWait : MonoBehaviour {
         int.TryParse(value, out shelfWait);
         if (shelfWait > 0)
             PersonManager.Instance().shelfWaitingTime = shelfWait;
-        Debug.Log(PersonManager.Instance().shelfWaitingTime);
     }
 }

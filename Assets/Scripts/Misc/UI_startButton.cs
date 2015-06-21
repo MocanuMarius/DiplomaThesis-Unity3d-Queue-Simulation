@@ -15,7 +15,7 @@ public class UI_startButton : MonoBehaviour {
     public void start()
     {
         StateManager.simState = StateManager.SimState.Running;
-        GameObject.FindGameObjectWithTag("canvas_mainMenu").SetActive(false);
+        GameObject.FindGameObjectWithTag("canvas_mainMenu").GetComponent<Canvas>().enabled = false;
         GameObject.FindGameObjectWithTag("canvas_overlayMenu").GetComponent<Canvas>().enabled = true;
     }
 }

@@ -15,11 +15,13 @@ public class Person : MonoBehaviour {
 	public int totalTimeInQueue=0;
     public int insideTime = 0;
 	public bool hasAbandoned;
+    public int bucketItemCount;
 	int totalTimeFirstInQ=0;
 	// Use this for initialization
 	void Awake () {
 		hasAbandoned = false;
 		bucket = PersonManager.Instance().getNewBucket ();
+        bucketItemCount = bucket.items.Count;
 		agent = GetComponent<NavMeshAgent> ();
 		thisTransform = GetComponent<Transform> ();
 		thisTransform.SetParent (GameObject.Find ("People").transform);
@@ -91,12 +93,12 @@ public class Person : MonoBehaviour {
 
 		if (!agent.pathPending)
 		if (Mathf.Floor (agent.remainingDistance) < 1 && buyState == BuyState.Exiting) {
-			//DO some kind of statistics
             if (hasAbandoned == true)
             {
                 PersonManager.Instance().numberOfPersonsAborted++;
             }
             PersonManager.Instance().persons.Remove(this.gameObject);
+            StatisticsManager.gatherPersonData(this);
 			Destroy(this.gameObject);
 		}
 

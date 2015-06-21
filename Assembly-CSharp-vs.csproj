@@ -69,7 +69,6 @@
      <Compile Include="Assets\Scripts\Misc\toggles.cs" />
      <Compile Include="Assets\Scripts\Person.cs" />
      <Compile Include="Assets\Scripts\Q.cs" />
-     <Compile Include="Assets\Scripts\Statistics.cs" />
      <Compile Include="Assets\Scripts\move.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>E:/UnitySecond/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>

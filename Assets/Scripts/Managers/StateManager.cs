@@ -17,16 +17,15 @@ public class StateManager : MonoBehaviour {
     void Awake()
     {
         simState = SimState.Menu;
+        GameObject.FindGameObjectWithTag("canvas_statisticsMenu").GetComponent<Canvas>().enabled = false;
+        GameObject.FindGameObjectWithTag("canvas_mainMenu").GetComponent<Canvas>().enabled = true;
     }
 	
 	// Update is called once per frame
 	void Update () {
         timeElapsedSeconds = Time.timeSinceLevelLoad;
-        if (timeElapsedSeconds > timeHorizonSeconds)
-        {
-            //SHOW STATISTICS AND GUI
-            Time.timeScale = 0;
-        }
+        if (timeElapsedSeconds > timeHorizonSeconds && (StateManager.simState == StateManager.SimState.Running))
+            StatisticsManager.showStatisticsAndHideOtherGui();
 	}
     public double getPercentElapsed()
     {

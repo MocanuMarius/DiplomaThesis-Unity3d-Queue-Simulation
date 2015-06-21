@@ -12,6 +12,9 @@ public class ScrollBarTime : MonoBehaviour {
 
 	}
 	public void changeTime(float newValue){
-		Time.timeScale = newValue;
+        if (StateManager.simState == StateManager.SimState.Finished)
+            Time.timeScale = 0;
+        else
+		    Time.timeScale = newValue;
 	}
 }
