@@ -22,3 +22,4 @@ E:\school\Licenta\UnityProject\Temp\bin\Debug\UnityEngine.Networking.xml
 E:\school\Licenta\UnityProject\Temp\bin\Debug\UnityEngine.Analytics.xml
 E:\school\Licenta\UnityProject\obj\Debug\Assembly-CSharp.dll
 E:\school\Licenta\UnityProject\obj\Debug\Assembly-CSharp.pdb
+E:\school\Licenta\UnityProject\obj\Debug\Assembly-CSharp-vs.csprojResolveAssemblyReference.cache

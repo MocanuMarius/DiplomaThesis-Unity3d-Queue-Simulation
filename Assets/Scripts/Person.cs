@@ -12,7 +12,8 @@ public class Person : MonoBehaviour {
 	Vector3 currentDestination;
 	public BuyState buyState;
 	float finishedTime;
-	int totalTimeInQueue=0;
+	public int totalTimeInQueue=0;
+    public int insideTime = 0;
 	public bool hasAbandoned;
 	int totalTimeFirstInQ=0;
 	// Use this for initialization
@@ -30,6 +31,7 @@ public class Person : MonoBehaviour {
 		}
 	}
 	void Start(){
+        StartCoroutine("startCountingInsideTime");
         if (QManager.Instance().isThereAnySlotsLeft() == false)
         {
              buyState = BuyState.ExitingIntermmediate1;
@@ -133,4 +135,12 @@ public class Person : MonoBehaviour {
 					yield return new WaitForSeconds(1);
 		}
 	}
+    IEnumerator startCountingInsideTime()
+    {
+        while (true)
+        {
+            insideTime++;
+            yield return new WaitForSeconds(1);
+        }
+    }
 }

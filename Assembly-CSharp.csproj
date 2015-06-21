@@ -50,6 +50,7 @@
      <Compile Include="Assets\Scripts\Managers\PersonManager.cs" />
      <Compile Include="Assets\Scripts\Managers\QManager.cs" />
      <Compile Include="Assets\Scripts\Managers\StateManager.cs" />
+     <Compile Include="Assets\Scripts\Managers\StatisticsManager.cs" />
      <Compile Include="Assets\Scripts\Misc\DisplayPersonStatus.cs" />
      <Compile Include="Assets\Scripts\Misc\DontDestroy.cs" />
      <Compile Include="Assets\Scripts\Misc\Locations.cs" />

@@ -8,7 +8,7 @@ public class StateManager : MonoBehaviour {
     private double timeElapsedSeconds= 0;
 	public int timeScale = 0;
     public int numberOfDisabledQueues = 0;
-    public enum SimState { Menu,Finished,Running };
+    public enum SimState { Menu,Finished,Running,GatheringData };
     public static SimState simState;
 	// Use this for initialization
 	void Start () {

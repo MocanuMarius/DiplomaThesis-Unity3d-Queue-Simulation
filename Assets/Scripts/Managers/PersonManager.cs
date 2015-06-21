@@ -51,7 +51,6 @@ public class PersonManager : MonoBehaviour {
 		while (true) {
             if (DistributionManager.getDistrib())
             {
-                Debug.Log(DistributionManager.uniformChance);
                 numberOfPersonsTotal++;
                 if (persons.Count < personsInsideLimit)
                 {
@@ -74,7 +73,7 @@ public class PersonManager : MonoBehaviour {
 }
 //BUCKET CLASS
 public class Bucket {
-	private List<Item> items;
+	public List<Item> items;
 	public int totalWaitingTime;
 	public Bucket(){
 		items = new List<Item>();
